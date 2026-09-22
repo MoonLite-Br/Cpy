@@ -1,0 +1,22 @@
+12 HELLO, WORLD hello, world H d ello dlroW ,olleH Hlo ol World Hello, 
+7 -1 3 HeLLo, WorLd HeLlo, World
+True True True True True
+['a', 'b', '', 'c'] ['a', 'b', 'c'] ['a', 'b c'] 1x2x3 
+pad pad     pad hi
+Abc Hello World aBc True True True True
+005 -005 ab...|    ab| **ab**
+['line1', 'line2'] ('a', '=', 'b=c') abcabcabc abcdef True True
+it's say "hi" tab	here "it's" 'say "hi"' 'a\nb' 'back\\slash'
+Ann is 30 years old; next year 31
+3.14    42|42   | 42  |00042|-0042|  ab|**ab**|
+ff FF 101
+1,234,567 50.0% 1.00e+06 'x' [1, 2] {literal}
+3 items, str,  3.14, 7   |0007, ff, A, %, 'q'
+a and b 5    ab|cd   |
+1 two 3.0 aba Bob!   3.14
+HÉLLO 5 é él 語本日 Xin Chào
+0 a 1 ñ 2 b 
+abc triple
+quoted raw\n escAé
+None True [1, 'a'] (1,) {1: 'x'} 1e+100 -0.0 4611686018427387904
+97 a 2 4 ['a', 'b-c']

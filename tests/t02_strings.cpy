@@ -1,0 +1,26 @@
+s = "Hello, World"
+print(len(s), s.upper(), s.lower(), s[0], s[-1], s[1:5], s[::-1], s[::2], s[-5:], s[:-5])
+print(s.find("World"), s.find("zzz"), s.count("l"), s.replace("l", "L"), s.replace("l", "L", 1))
+print(s.startswith("Hell"), s.endswith("d"), s.startswith(("x", "He")), "lo" in s, "xx" not in s)
+print("a,b,,c".split(","), "  a  b   c ".split(), "a b c".split(" ", 1), "x".join(["1", "2", "3"]), ",".join([]))
+print("  pad  ".strip(), "  pad  ".lstrip(), "  pad  ".rstrip(), "xxhixx".strip("x"))
+print("abc".capitalize(), "hello world".title(), "AbC".swapcase(), "abc".isalpha(), "123".isdigit(), "a1".isalnum(), " ".isspace())
+print("5".zfill(3), "-5".zfill(4), "ab".ljust(5, ".") + "|", "ab".rjust(5) + "|", "ab".center(6, "*"))
+print("line1\nline2\n".splitlines(), "a=b=c".partition("="), "abc" * 3, "abc" + "def", "abc" < "abd", "b" > "abc")
+print("it's", 'say "hi"', "tab\there", repr("it's"), repr('say "hi"'), repr("a\nb"), repr("back\\slash"))
+name, age = "Ann", 30
+print(f"{name} is {age} years old; next year {age + 1}")
+print(f"{3.14159:.2f} {42:5d}|{42:<5d}|{42:^5d}|{42:05d}|{-42:05d}|{'ab':>4}|{'ab':*^6}|")
+print(f"{255:x} {255:X} {255:#x}" if False else f"{255:x} {255:X} {5:b}")
+print(f"{1234567:,} {0.5:.1%} {1e6:.2e} {'x'!r} {[1, 2]} {{literal}}")
+print("%d items, %s, %5.2f, %-4d|%04d, %x, %c, %%, %r" % (3, "str", 3.14159, 7, 7, 255, 65, "q"))
+print("%s and %s" % ("a", "b"), "%d" % 5, "%5s|%-5s|" % ("ab", "cd"))
+print("{} {} {}".format(1, "two", 3.0), "{0}{1}{0}".format("a", "b"), "{name}!".format(name="Bob"), "{:>6.2f}".format(3.14159))
+print("héllo".upper(), len("héllo"), "héllo"[1], "héllo"[1:3], "日本語"[::-1], "xin chào".title())
+for i, ch in enumerate("añb"):
+    print(i, ch, end=" ")
+print()
+print("a" "b" 'c', """triple
+quoted""", r"raw\n", "esc\x41\u00e9")
+print(str(None), str(True), str([1, "a"]), str((1,)), str({1: "x"}), str(1e100), str(-0.0), str(2**62))
+print(ord("a"), chr(97), "abc".index("c"), "abcabc".rfind("b"), "a-b-c".split("-", 1))

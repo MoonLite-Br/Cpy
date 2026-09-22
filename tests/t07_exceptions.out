@@ -1,0 +1,30 @@
+0 ValueError: zero!
+1 lookup: KeyError 'k'
+2 zero: division by zero
+3 lookup: IndexError list index out of range
+4 lookup: KeyError 'missing'
+5 ValueError: invalid literal for int() with base 10: 'abc'
+6 other: NameError
+7 other: TypeError
+8 other: AttributeError
+9 ok
+cleanup 1
+caught inner
+finally runs
+try
+body 0
+fin 0
+fin 1
+body 2
+fin 2
+else ran 1
+code 42 42 True
+reraised a
+bare class -> ''
+assert: math broke
+recursion caught
+unpack: too many values to unpack (expected 2)
+pop from empty list
+type error
+bare except
+end

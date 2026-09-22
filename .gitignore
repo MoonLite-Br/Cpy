@@ -1,0 +1,4 @@
+bin/
+*.o
+tests/tmp_*
+examples/demo_out.txt
