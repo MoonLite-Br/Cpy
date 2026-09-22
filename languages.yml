@@ -1,0 +1,7 @@
+CPy:
+  type: programming
+  color: "#8644E3"
+  extensions:
+    - ".cpy"
+  tm_scope: source.cpy
+  ace_mode: text
