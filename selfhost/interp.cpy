@@ -1,0 +1,364 @@
+# selfhost/interp.cpy - tree-walking evaluator for the self-hosted subset.
+# This is a real, working "cpy interpreter written in cpy" (meta-circular):
+# it is itself run by the C cpy interpreter, but everything below it --
+# lexing, parsing, evaluating -- is 100% cpy source code, not a C shim.
+
+from parser import parse, ParseError
+from lexer import LexError
+
+
+class BreakSignal(Exception):
+    pass
+
+
+class ContinueSignal(Exception):
+    pass
+
+
+class ReturnSignal(Exception):
+    def __init__(self, value):
+        self.value = value
+
+
+class CpyRuntimeError(Exception):
+    pass
+
+
+class Env:
+    def __init__(self, parent=None):
+        self.vars = {}
+        self.parent = parent
+        self.global_names = set()
+
+    def root(self):
+        env = self
+        while env.parent is not None:
+            env = env.parent
+        return env
+
+    def get(self, name):
+        if name in self.global_names:
+            return self.root().get(name)
+        env = self
+        while env is not None:
+            if name in env.vars:
+                return env.vars[name]
+            env = env.parent
+        raise CpyRuntimeError(f"name '{name}' is not defined")
+
+    def set_local(self, name, value):
+        self.vars[name] = value
+
+    def assign(self, name, value):
+        if name in self.global_names:
+            self.root().assign(name, value)
+            return
+        env = self
+        while env is not None:
+            if name in env.vars:
+                env.vars[name] = value
+                return
+            env = env.parent
+        self.vars[name] = value
+
+
+class Function:
+    def __init__(self, name, params, defaults, body, closure, owner=None):
+        self.name = name
+        self.params = params
+        self.defaults = defaults
+        self.body = body
+        self.closure = closure
+        self.owner = owner        # class this method belongs to, or None
+
+    def bind(self, instance):
+        return BoundMethod(self, instance)
+
+    def __repr__(self):
+        return f"<function {self.name}>"
+
+
+class BoundMethod:
+    def __init__(self, fn, instance):
+        self.fn = fn
+        self.instance = instance
+
+    def __repr__(self):
+        return f"<bound method {self.fn.name}>"
+
+
+class Class:
+    def __init__(self, name, base, attrs):
+        self.name = name
+        self.base = base
+        self.attrs = attrs
+
+    def find(self, name):
+        if name in self.attrs:
+            return self.attrs[name]
+        if self.base is not None:
+            return self.base.find(name)
+        return None
+
+    def __repr__(self):
+        return f"<class {self.name}>"
+
+
+class Instance:
+    def __init__(self, cls):
+        self.cls = cls
+        self.attrs = {}
+
+    def __repr__(self):
+        r = self.cls.find("__repr__")
+        if r is not None:
+            return call_function(r.bind(self), [])
+        return f"<{self.cls.name} object>"
+
+
+def truthy(v):
+    if v is None:
+        return False
+    if v is True or v is False:
+        return v
+    if isinstance(v, (int, float)):
+        return v != 0
+    if isinstance(v, (str, list, dict)):
+        return len(v) > 0
+    return True
+
+
+def call_function(fn, args):
+    if isinstance(fn, BoundMethod):
+        return call_function(fn.fn, [fn.instance] + list(args))
+    if not isinstance(fn, Function):
+        # native/host callable (print, len, a real cpy function passed in, ...)
+        return fn(*args)
+    env = Env(fn.closure)
+    nparams = len(fn.params)
+    if len(args) > nparams:
+        raise CpyRuntimeError(f"{fn.name}() takes {nparams} arguments but {len(args)} were given")
+    for i in range(len(args)):
+        env.set_local(fn.params[i], args[i])
+    for i in range(len(args), nparams):
+        found = False
+        for dname, dexpr in fn.defaults:
+            if dname == fn.params[i]:
+                env.set_local(dname, eval_node(dexpr, fn.closure))
+                found = True
+                break
+        if not found:
+            raise CpyRuntimeError(f"{fn.name}() missing argument '{fn.params[i]}'")
+    try:
+        exec_block(fn.body, env)
+    except ReturnSignal as r:
+        return r.value
+    return None
+
+
+BINOPS = {
+    "+": lambda a, b: a + b,
+    "-": lambda a, b: a - b,
+    "*": lambda a, b: a * b,
+    "/": lambda a, b: a / b,
+    "//": lambda a, b: a // b,
+    "%": lambda a, b: a % b,
+    "**": lambda a, b: a ** b,
+}
+CMPOPS = {
+    "==": lambda a, b: a == b,
+    "!=": lambda a, b: a != b,
+    "<": lambda a, b: a < b,
+    "<=": lambda a, b: a <= b,
+    ">": lambda a, b: a > b,
+    ">=": lambda a, b: a >= b,
+    "in": lambda a, b: a in b,
+}
+
+
+def eval_node(n, env):
+    k = n["kind"]
+    if k == "const":
+        return n["value"]
+    if k == "name":
+        return env.get(n["id"])
+    if k == "binop":
+        return BINOPS[n["op"]](eval_node(n["left"], env), eval_node(n["right"], env))
+    if k == "cmp":
+        return CMPOPS[n["op"]](eval_node(n["left"], env), eval_node(n["right"], env))
+    if k == "and":
+        left = eval_node(n["left"], env)
+        return eval_node(n["right"], env) if truthy(left) else left
+    if k == "or":
+        left = eval_node(n["left"], env)
+        return left if truthy(left) else eval_node(n["right"], env)
+    if k == "not":
+        return not truthy(eval_node(n["value"], env))
+    if k == "unary":
+        v = eval_node(n["value"], env)
+        return -v if n["op"] == "-" else v
+    if k == "list":
+        return [eval_node(x, env) for x in n["items"]]
+    if k == "dict":
+        return {eval_node(n["keys"][i], env): eval_node(n["values"][i], env) for i in range(len(n["keys"]))}
+    if k == "index":
+        return eval_node(n["obj"], env)[eval_node(n["idx"], env)]
+    if k == "slice":
+        obj = eval_node(n["obj"], env)
+        lo = eval_node(n["lo"], env) if n["lo"] is not None else None
+        hi = eval_node(n["hi"], env) if n["hi"] is not None else None
+        return obj[lo:hi]
+    if k == "attr":
+        obj = eval_node(n["obj"], env)
+        if isinstance(obj, Instance):
+            if n["name"] in obj.attrs:
+                return obj.attrs[n["name"]]
+            m = obj.cls.find(n["name"])
+            if m is not None:
+                return m.bind(obj) if isinstance(m, Function) else m
+            raise CpyRuntimeError(f"'{obj.cls.name}' object has no attribute '{n['name']}'")
+        return getattr(obj, n["name"])
+    if k == "call":
+        fn = eval_node(n["fn"], env)
+        if n.get("kwargs"):
+            # This self-hosted tree-walker (used only for selfhost_test.sh's
+            # cross-check against AOT output) doesn't bind keyword arguments
+            # to parameters -- erroring clearly beats silently dropping them
+            # (args below only ever collects n["args"]), which would make a
+            # kwargs call silently run with the wrong arguments instead of
+            # failing loudly.
+            raise CpyRuntimeError("selfhost tree-walker: keyword arguments are not supported")
+        args = [eval_node(a, env) for a in n["args"]]
+        if isinstance(fn, Class):
+            inst = Instance(fn)
+            init = fn.find("__init__")
+            if init is not None:
+                call_function(init.bind(inst), args)
+            return inst
+        return call_function(fn, args)
+    raise CpyRuntimeError(f"cannot evaluate node kind {k!r}")
+
+
+def assign_target(target, value, env):
+    k = target["kind"]
+    if k == "name":
+        env.assign(target["id"], value)
+        return
+    if k == "index":
+        eval_node(target["obj"], env)[eval_node(target["idx"], env)] = value
+        return
+    if k == "attr":
+        obj = eval_node(target["obj"], env)
+        if isinstance(obj, Instance):
+            obj.attrs[target["name"]] = value
+        else:
+            setattr(obj, target["name"], value)
+        return
+    raise CpyRuntimeError(f"cannot assign to {k}")
+
+
+def exec_block(stmts, env):
+    for s in stmts:
+        exec_stmt(s, env)
+
+
+def exec_stmt(n, env):
+    k = n["kind"]
+    if k == "exprstmt":
+        eval_node(n["value"], env)
+        return
+    if k == "assign":
+        assign_target(n["target"], eval_node(n["value"], env), env)
+        return
+    if k == "augassign":
+        cur = eval_node(n["target"], env)
+        rhs = eval_node(n["value"], env)
+        assign_target(n["target"], BINOPS[n["op"]](cur, rhs), env)
+        return
+    if k == "if":
+        if truthy(eval_node(n["cond"], env)):
+            exec_block(n["body"], env)
+        else:
+            exec_block(n["orelse"], env)
+        return
+    if k == "while":
+        while truthy(eval_node(n["cond"], env)):
+            try:
+                exec_block(n["body"], env)
+            except BreakSignal:
+                break
+            except ContinueSignal:
+                continue
+        return
+    if k == "for":
+        target = n["target"]
+        for item in eval_node(n["iter"], env):
+            if isinstance(target, list):
+                for i in range(len(target)):
+                    env.assign(target[i], item[i])
+            else:
+                env.assign(target, item)
+            try:
+                exec_block(n["body"], env)
+            except BreakSignal:
+                break
+            except ContinueSignal:
+                continue
+        return
+    if k == "def":
+        fn = Function(n["name"], n["params"], n["defaults"], n["body"], env)
+        env.set_local(n["name"], fn)
+        return
+    if k == "class":
+        base = env.get(n["base"]) if n["base"] else None
+        cls_env = Env(env)
+        exec_block(n["body"], cls_env)
+        cls = Class(n["name"], base, cls_env.vars)
+        for v in cls_env.vars.values():
+            if isinstance(v, Function) and v.owner is None:
+                v.owner = cls
+        env.set_local(n["name"], cls)
+        return
+    if k == "return":
+        raise ReturnSignal(eval_node(n["value"], env) if n["value"] is not None else None)
+    if k == "break":
+        raise BreakSignal()
+    if k == "continue":
+        raise ContinueSignal()
+    if k == "pass":
+        return
+    if k == "global":
+        for name in n["names"]:
+            env.global_names.add(name)
+        return
+    raise CpyRuntimeError(f"cannot execute node kind {k!r}")
+
+
+def make_global_env():
+    g = Env(None)
+    g.vars["print"] = print
+    g.vars["len"] = len
+    g.vars["range"] = range
+    g.vars["str"] = str
+    g.vars["int"] = int
+    g.vars["float"] = float
+    g.vars["bool"] = bool
+    g.vars["abs"] = abs
+    g.vars["min"] = min
+    g.vars["max"] = max
+    g.vars["sum"] = sum
+    g.vars["list"] = list
+    g.vars["dict"] = dict
+    g.vars["sorted"] = sorted
+    g.vars["enumerate"] = enumerate
+    g.vars["isinstance"] = isinstance
+    return g
+
+
+def run(src, env=None):
+    """Parse and run cpy source in the given (or a fresh) global environment."""
+    if env is None:
+        env = make_global_env()
+    prog = parse(src)
+    exec_block(prog, env)
+    return env

@@ -1,0 +1,20 @@
+[1, 2, 3] [2, 3, 4] [1, 2, 3, 4] [2, 3] [1] [1, 4] 3 True False
+True True True True True False True True
+[0, 1, 2] True ['e', 'h', 'l', 'o']
+[1, 2, 3] True 2
+[1, 2, 3, 4] [1, 2, 3, 4, 9] [1, 2] [2, 3, 4] [2, 3, 4, 8]
+True True True [1, 2, 3, 4] False True
+[2, 3, 100]
+True x [1, 2, 3, 9] frozenset set
+set() {1} frozenset() {'a'} 1 [(1, 2), (2, 1)]
+unhashable: unhashable type: 'list'
+KeyError
+[1, 3] {1: 2, 3: 4} {1: 2, 3: 4} 6 9 ['1', '2']
+{'a': 1} {'a': 0, 'b': 0} ('b', 2) {'a': 1} {1: 'x', 2: 'x'}
+{'a': [1, 3], 'b': [2]} [] 3 False None
+[('i', 4), ('m', 1), ('p', 2), ('s', 4)] True
+[('i', 4), ('s', 4)] 4 0 ['i', 'i', 'i'] 11 11
+[('m', 11), ('s', 8), ('i', 4)] Counter({1: 2, 2: 1}) Counter({'a': 2, 'b': 1})
+['y', 'z', 'x'] ('x', 1) ('y', 2) [('z', 3)]
+True Counter defaultdict
+[('a', 3), ('b', 2), ('c', 1)]

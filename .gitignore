@@ -1,0 +1,8 @@
+bin/
+build/
+*.o
+*.a
+*.so
+demo_out.txt
+.cpy_test_*
+*.out.bak

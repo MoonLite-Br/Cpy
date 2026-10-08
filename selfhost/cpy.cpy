@@ -1,0 +1,33 @@
+#!/usr/bin/env cpy
+# selfhost/cpy.cpy - entry point for the self-hosted interpreter.
+#
+#   cpy selfhost/cpy.cpy script.cpy     # run script.cpy through the cpy-in-cpy interpreter
+#
+# This whole tree (lexer.cpy, parser.cpy, interp.cpy) is executed BY the real
+# C-based cpy binary, but it re-implements lexing/parsing/evaluation itself
+# in pure cpy source. See selfhost/README.md for scope and limitations.
+
+import sys
+from interp import run, CpyRuntimeError
+from parser import ParseError
+from lexer import LexError
+
+
+def main():
+    if len(sys.argv) < 2:
+        print("usage: cpy selfhost/cpy.cpy <script.cpy>")
+        sys.exit(2)
+    path = sys.argv[1]
+    with open(path) as f:
+        src = f.read()
+    try:
+        run(src)
+    except (LexError, ParseError) as e:
+        print(f"selfhost: syntax error: {e}")
+        sys.exit(1)
+    except CpyRuntimeError as e:
+        print(f"selfhost: runtime error: {e}")
+        sys.exit(1)
+
+
+main()

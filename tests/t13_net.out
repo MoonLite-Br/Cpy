@@ -1,0 +1,14 @@
+True True
+socket
+2.0
+closed socket error: OSError
+refused: ConnectionRefusedError
+https blocked as expected
+{"a": 1, "b": 2}
+[1, "two", 3.5, null, true, false]
+{'x': [1, 2, {'y': None}], 's': 'a\nb'}
+"quote\"and\\backslash"
+{'nested': {'a': [1, 2, 3]}}
+{
+  "k": 1
+}
