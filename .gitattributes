@@ -1,0 +1,9 @@
+# cpy source is Python-like syntax; without this, GitHub Linguist
+# mis-detects *.cpy as COBOL (old copybook extension).
+*.cpy linguist-language=Python
+
+# Keep shell scripts classified as Shell
+*.sh linguist-language=Shell
+
+# Generated / embedded data – still C, but no need to skew stats
+src/stdlib_data.c linguist-generated=true
