@@ -1,4 +1,4 @@
-# helper module used by t08_modules.cpy
+# helper module used by t08_modules.cpi
 counter = 0
 PI2 = 6.28
 

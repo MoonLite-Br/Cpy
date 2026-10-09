@@ -1,11 +1,5 @@
-# cpy's own source (*.cpy) is NOT Python — Python-like syntax only.
-# Exclude from language stats so the repo reads as a C project.
-*.cpy linguist-detectable=false
-
-# Optional: still syntax-highlight as Python in the UI
+# Map to Python until github-linguist accepts the Cpy language.
+*.cpi linguist-language=Python
 *.cpy linguist-language=Python
-
-*.sh linguist-language=Shell
-
-# Large generated embed of the stdlib — don't skew C %
+*.sh  linguist-language=Shell
 src/stdlib_data.c linguist-generated=true

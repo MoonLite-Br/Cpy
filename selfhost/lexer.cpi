@@ -1,4 +1,4 @@
-# selfhost/lexer.cpy - tokenizer for the self-hosted cpy-in-cpy interpreter.
+# selfhost/lexer.cpi - tokenizer for the self-hosted cpy-in-cpy interpreter.
 # Written in cpy itself and run BY the real (C) cpy interpreter.
 
 KEYWORDS = {

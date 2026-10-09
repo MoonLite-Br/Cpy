@@ -11,7 +11,7 @@ static int g_exit_code;
 static void usage(void) {
   puts("cpy " CPY_VERSION " - a small Python-like language\n"
        "\n"
-       "usage: cpy [options] [script.cpy [args...]]\n"
+       "usage: cpy [options] [script.cpi [args...]]\n"
        "       cpy -c \"code\"\n"
        "\n"
        "options:\n"

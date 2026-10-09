@@ -1,10 +1,10 @@
 #!/usr/bin/env cpy
-# selfhost/aotc.cpy - AOT compiler driver: cpy source -> native executable.
+# selfhost/aotc.cpi - AOT compiler driver: cpy source -> native executable.
 #
-#   aotc in.cpy -o out && ./out              (after ./install.sh, "aotc" is on your PATH)
-#   cpy selfhost/aotc.cpy in.cpy -o out       (works from a plain checkout too)
+#   aotc in.cpi -o out && ./out              (after ./install.sh, "aotc" is on your PATH)
+#   cpy selfhost/aotc.cpi in.cpi -o out       (works from a plain checkout too)
 #
-# Runs the self-hosted lexer/parser + codegen.cpy to produce C, then shells
+# Runs the self-hosted lexer/parser + codegen.cpi to produce C, then shells
 # out to `cc` to turn that C into a real machine-code binary, linked against
 # the same runtime (bin/libcpyrt.a) the tree-walking interpreter uses.
 #
@@ -21,9 +21,9 @@ from parser import ParseError
 SELF_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(SELF_DIR)
 
-USAGE = """usage: aotc <in.cpy> [-o out] [--run] [--keep-c] [--cc=clang]
+USAGE = """usage: aotc <in.cpi> [-o out] [--run] [--keep-c] [--cc=clang]
 
-  <in.cpy>     the cpy script to compile (numeric subset only -- see
+  <in.cpi>     the cpy script to compile (numeric subset only -- see
                selfhost/README.md for exactly what that covers)
   -o out       name of the native binary to write (default: <in> without
                its extension, in the current directory)
@@ -33,9 +33,9 @@ USAGE = """usage: aotc <in.cpy> [-o out] [--run] [--keep-c] [--cc=clang]
   --cc=CC      C compiler to use (default: $CC, or "cc")
 
 examples:
-  aotc fib.cpy -o fib && ./fib
-  aotc fib.cpy --run
-  aotc fib.cpy --keep-c -o fib   # then look at fib.aot.c
+  aotc fib.cpi -o fib && ./fib
+  aotc fib.cpi --run
+  aotc fib.cpi --keep-c -o fib   # then look at fib.aot.c
 
 If a script uses something outside the numeric subset (strings, lists,
 classes, ...), aotc reports a CompileError with the source line and exactly
@@ -87,7 +87,7 @@ def main():
         sys.exit(2)
     if not out_path:
         base = os.path.basename(src_path)
-        out_path = base[:-4] if base.endswith(".cpy") else (base[:-3] if base.endswith(".py") else base + ".out")
+        out_path = base[:-4] if base.endswith(".cpi") else (base[:-3] if base.endswith(".py") else base + ".out")
 
     with open(src_path) as f:
         src = f.read()

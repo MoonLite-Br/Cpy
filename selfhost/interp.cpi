@@ -1,4 +1,4 @@
-# selfhost/interp.cpy - tree-walking evaluator for the self-hosted subset.
+# selfhost/interp.cpi - tree-walking evaluator for the self-hosted subset.
 # This is a real, working "cpy interpreter written in cpy" (meta-circular):
 # it is itself run by the C cpy interpreter, but everything below it --
 # lexing, parsing, evaluating -- is 100% cpy source code, not a C shim.

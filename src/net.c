@@ -1,6 +1,6 @@
 /* net.c - a real, POSIX-backed `socket` module (modeled on CPython's
  * Modules/socketmodule.c, trimmed to the parts most scripts actually use)
- * plus the module glue for the pure-cpy lib/http_client.cpy on top of it.
+ * plus the module glue for the pure-cpy lib/http_client.cpi on top of it.
  */
 #define _GNU_SOURCE
 #include <errno.h>

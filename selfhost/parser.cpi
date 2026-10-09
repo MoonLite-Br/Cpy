@@ -1,4 +1,4 @@
-# selfhost/parser.cpy - recursive-descent parser -> AST (plain dicts) for the
+# selfhost/parser.cpi - recursive-descent parser -> AST (plain dicts) for the
 # self-hosted subset. Run by the real cpy interpreter.
 
 from lexer import tokenize, LexError
@@ -11,7 +11,7 @@ class ParseError(Exception):
 def decode_str_escapes(s):
     """Decode backslash escapes in a literal text segment -- used for the
     literal portions of an f-string, which the lexer (FSTRING token) hands
-    over raw/undecoded (see lexer.cpy's f-string branch for why)."""
+    over raw/undecoded (see lexer.cpi's f-string branch for why)."""
     out = []
     i = 0
     n = len(s)
@@ -498,7 +498,7 @@ class Parser:
         re-lexing+parsing each {expr} as an ordinary expression. Supports
         {expr}, {expr:spec}, {expr!conv}, {expr!conv:spec}; does not
         support the {expr=} debug-equals shorthand (rare enough in
-        practice, and AOT can't use any of this anyway -- see codegen.cpy,
+        practice, and AOT can't use any of this anyway -- see codegen.cpi,
         which rejects "fstring" like every other string-valued node)."""
         parts = []
         lit = []

@@ -31,4 +31,4 @@ else
        echo "Run: source ~/.bashrc" ;;
   esac
 fi
-echo "Use: cpy   or   cpy file.cpy"
+echo "Use: cpy   or   cpy file.cpi"

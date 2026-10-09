@@ -2,7 +2,7 @@ CC      ?= cc
 CFLAGS  ?= -O2
 CFLAGS  += -Wall -Wextra -Wno-unused-parameter -Wno-misleading-indentation -std=gnu11
 LDLIBS  += -lm -pthread
-LIBS    := $(wildcard lib/*.cpy)
+LIBS    := $(wildcard lib/*.cpi)
 SRC     := $(sort $(wildcard src/*.c))
 BIN     := bin/cpy
 
@@ -70,7 +70,7 @@ bin/libcpyrt.a: $(RTOBJ)
 	ar rcs $@ $(RTOBJ)
 
 aot: bin/libcpyrt.a
-	@echo "runtime library ready: bin/libcpyrt.a  (use: cpy selfhost/aotc.cpy in.cpy -o out)"
+	@echo "runtime library ready: bin/libcpyrt.a  (use: cpy selfhost/aotc.cpi in.cpi -o out)"
 
 test: $(BIN)
 	./run_tests.sh

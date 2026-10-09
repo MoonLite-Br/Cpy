@@ -35,7 +35,7 @@ print(Counter("mississippi").most_common(2))
 # Termux:  pkg install clang make
 ./install.sh          # builds and installs `cpy` + `aotc` to $PREFIX/bin (Termux), /usr/local/bin or ~/bin
 cpy                    # REPL
-cpy file.py            # run a script (.cpy or .py both work)
+cpy file.py            # run a script (.cpi or .py both work)
 cpy -c 'print(1 + 2)'
 ```
 
@@ -76,10 +76,10 @@ CPython's own asyncio works. See [docs/language.md](docs/language.md#async--awai
 ## Self-hosting
 
 [`selfhost/`](selfhost/README.md) is a second, independent cpy implementation
-written entirely in cpy: a tree-walking interpreter (`cpy selfhost/cpy.cpy
-script.cpy`, a demo/sandbox tier — much slower, by design, since it's two
+written entirely in cpy: a tree-walking interpreter (`cpy selfhost/cpy.cpi
+script.cpi`, a demo/sandbox tier — much slower, by design, since it's two
 interpreters deep) and, more interestingly, an **AOT compiler**
-(`aotc in.cpy -o out && ./out`, installed on your PATH by `install.sh`) that
+(`aotc in.cpi -o out && ./out`, installed on your PATH by `install.sh`) that
 turns numeric cpy — including `import math`/`random`/... and calls into
 them — into a real native executable via generated C, 2–4.5× faster than
 the tree-walking interpreter itself. `aotc --help` for the details.
@@ -92,10 +92,10 @@ the tree-walking interpreter itself. `aotc --help` for the details.
 
 ```
 src/            the interpreter (lexer, parser, resolver, evaluator, generators, builtins)
-lib/*.cpy       standard-library modules written in cpy, baked into the binary at build time
+lib/*.cpi       standard-library modules written in cpy, baked into the binary at build time
 selfhost/       a second, independent cpy interpreter written entirely in cpy (see selfhost/README.md) —
-                a demo/sandbox tier, not the fast path; run with `cpy selfhost/cpy.cpy script.cpy`
-tests/          test-suite (tNN_name.cpy + expected tNN_name.out), verified against CPython 3.12
+                a demo/sandbox tier, not the fast path; run with `cpy selfhost/cpy.cpi script.cpi`
+tests/          test-suite (tNN_name.cpi + expected tNN_name.out), verified against CPython 3.12
 examples/       small example programs
 docs/           language reference, builtin reference, internals
 run_tests.sh    run all tests (make test)

@@ -1,21 +1,21 @@
 #!/bin/bash
-# Compare selfhost/cpy.cpy (tree-walking) and, where in scope, selfhost's AOT
+# Compare selfhost/cpy.cpi (tree-walking) and, where in scope, selfhost's AOT
 # compiler against the native interpreter, for every script in
 # selfhost/tests/. Run from the repo root.
 cd "$(dirname "$0")" || exit 1
 BIN=${CPY:-./bin/cpy}
 pass=0; fail=0
-for f in selfhost/tests/t*.cpy; do
+for f in selfhost/tests/t*.cpi; do
   a=$("$BIN" "$f" 2>&1)
   if grep -q '^import ' "$f"; then
-    echo "skip  tree-walk $f (uses import -- tree-walking selfhost/cpy.cpy doesn't support it, only AOT does; see selfhost/README.md)"
+    echo "skip  tree-walk $f (uses import -- tree-walking selfhost/cpy.cpi doesn't support it, only AOT does; see selfhost/README.md)"
   else
-    b=$("$BIN" selfhost/cpy.cpy "$f" 2>&1)
+    b=$("$BIN" selfhost/cpy.cpi "$f" 2>&1)
     if [ "$a" = "$b" ]; then pass=$((pass+1)); echo "ok    tree-walk $f"; else fail=$((fail+1)); echo "FAIL  tree-walk $f"; diff <(echo "$a") <(echo "$b"); fi
   fi
 
   out=$(mktemp -u)
-  buildlog=$("$BIN" selfhost/aotc.cpy "$f" -o "$out" 2>&1)
+  buildlog=$("$BIN" selfhost/aotc.cpi "$f" -o "$out" 2>&1)
   if echo "$buildlog" | grep -q "aotc: wrote"; then
     c=$("$out" 2>&1)
     rm -f "$out"

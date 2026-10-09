@@ -2,7 +2,7 @@
 struct StdlibEntry { const char *name; const char *src; };
 const struct StdlibEntry g_stdlib[] = {
 {"asyncio",
-"# lib/asyncio.cpy - a real, single-threaded, cooperative event loop, in the\n"
+"# lib/asyncio.cpi - a real, single-threaded, cooperative event loop, in the\n"
 "# spirit of Python's own asyncio (concurrency via taking turns at `await`\n"
 "# points, not OS threads or real parallelism -- exactly how CPython's\n"
 "# asyncio itself works internally).\n"
@@ -694,7 +694,7 @@ const struct StdlibEntry g_stdlib[] = {
 "    return iter([tuple(items[i:i + n]) for i in range(0, len(items), n)])\n"
 },
 {"json",
-"# lib/json.cpy - a small, dependency-free JSON encoder/decoder.\n"
+"# lib/json.cpi - a small, dependency-free JSON encoder/decoder.\n"
 "\n"
 "_WS = \" \\t\\n\\r\"\n"
 "\n"
@@ -1013,7 +1013,7 @@ const struct StdlibEntry g_stdlib[] = {
 "    return s\n"
 },
 {"ssl",
-"# lib/ssl.cpy - a small client-side TLS layer, in the spirit of Python's\n"
+"# lib/ssl.cpi - a small client-side TLS layer, in the spirit of Python's\n"
 "# `ssl` module, over the native _ssl module (src/ssl_mod.c, OpenSSL).\n"
 "try:\n"
 "    from _ssl import _wrap_socket\n"
@@ -1191,7 +1191,7 @@ const struct StdlibEntry g_stdlib[] = {
 "    return perf_counter()\n"
 },
 {"urllib",
-"# lib/urllib.cpy - a minimal, dependency-free HTTP/1.1 client, in the spirit\n"
+"# lib/urllib.cpi - a minimal, dependency-free HTTP/1.1 client, in the spirit\n"
 "# of Python's urllib.request but trimmed to what actually fits a scripting\n"
 "# tool: GET/POST/PUT/DELETE with headers and a body, redirects, and chunked\n"
 "# or Content-Length responses. https:// works when this cpy binary was\n"

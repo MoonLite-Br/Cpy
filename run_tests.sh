@@ -1,5 +1,5 @@
 #!/bin/sh
-# Run the cpy test-suite.  Each tests/tNN_name.cpy is executed from inside tests/
+# Run the cpy test-suite.  Each tests/tNN_name.cpi is executed from inside tests/
 # and its stdout is compared with tests/tNN_name.out.
 #   ./run_tests.sh            run everything
 #   ./run_tests.sh --update   regenerate the .out files (review them with git diff!)
@@ -14,9 +14,9 @@ BIN=$(cd "$(dirname "$BIN")" && pwd)/$(basename "$BIN")
 
 pass=0; fail=0
 cd tests || exit 1
-for f in t*.cpy; do
+for f in t*.cpi; do
   [ -f "$f" ] || continue
-  exp="${f%.cpy}.out"
+  exp="${f%.cpi}.out"
   if [ "$1" = "--update" ]; then "$BIN" "$f" > "$exp" 2>/dev/null; echo "updated $exp"; continue; fi
   if [ ! -f "$exp" ]; then
     fail=$((fail+1)); echo "FAIL  $f (missing $exp)"; continue
@@ -31,7 +31,7 @@ done
 
 # --- examples must run cleanly ------------------------------------------------
 cd ../examples || exit 1
-for f in *.cpy; do
+for f in *.cpi; do
   [ -f "$f" ] || continue
   if "$BIN" "$f" >/dev/null 2>&1 </dev/null; then pass=$((pass+1)); echo "ok    example: $f"; else fail=$((fail+1)); echo "FAIL  example: $f"; fi
 done
@@ -48,17 +48,17 @@ check "--version" "cpy 1.10.0" "$("$BIN" --version)"
 "$BIN" -c 'raise ValueError("x")' >/dev/null 2>&1; check "uncaught exit code" "1" "$?"
 "$BIN" -c 'def f(:' >/dev/null 2>&1; check "syntax error exit code" "1" "$?"
 "$BIN" -c 'exit(7)' >/dev/null 2>&1; check "exit(7)" "7" "$?"
-"$BIN" /nonexistent.cpy >/dev/null 2>&1; check "missing file exit code" "2" "$?"
+"$BIN" /nonexistent.cpi >/dev/null 2>&1; check "missing file exit code" "2" "$?"
 check "uncaught message" "ValueError: boom" "$("$BIN" -c 'raise ValueError("boom")' 2>&1 | tail -1)"
 check "traceback line" '  File "<string>", line 3, in f' "$("$BIN" -c 'def f():
     x = 1
     return 1 / 0
 f()' 2>&1 | sed -n 3p)"
 check "repl keeps state" "10" "$(printf 'def f(a):\n    return a * 2\n\nf(5)\n' | "$BIN" -i 2>/dev/null | grep -o '10$' | head -1)"
-check "sys.argv" "3 b" "$(printf 'import sys\nprint(len(sys.argv), sys.argv[2])\n' > $T/argv_t.cpy; "$BIN" $T/argv_t.cpy a b)"
+check "sys.argv" "3 b" "$(printf 'import sys\nprint(len(sys.argv), sys.argv[2])\n' > $T/argv_t.cpi; "$BIN" $T/argv_t.cpi a b)"
 
 # --- the bytecode VM must agree with the tree-walker on every test ------------
-for f in t*.cpy; do
+for f in t*.cpi; do
   [ -f "$f" ] || continue
   "$BIN" --no-vm "$f" > $T/vm_a 2>/dev/null; ra=$?
   "$BIN" "$f" > $T/vm_b 2>/dev/null; rb=$?

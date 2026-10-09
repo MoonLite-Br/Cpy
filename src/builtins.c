@@ -582,7 +582,7 @@ static Value bi_help(ARGS) {
        "               isinstance abs min max sum sorted reversed enumerate zip map\n"
        "               filter any all round divmod pow chr ord hex bin oct repr\n"
        "               hasattr getattr setattr callable open read write globals exit\n"
-       "  modules    : math time random sys os  (or your own .cpy files)\n"
+       "  modules    : math time random sys os  (or your own .cpi files)\n"
        "\n"
        "  read(path) / write(path, text) are shortcuts for whole-file I/O.\n"
        "  Full reference: docs/language.md and docs/builtins.md");

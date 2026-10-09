@@ -1,9 +1,9 @@
 #!/usr/bin/env cpy
-# selfhost/cpy.cpy - entry point for the self-hosted interpreter.
+# selfhost/cpy.cpi - entry point for the self-hosted interpreter.
 #
-#   cpy selfhost/cpy.cpy script.cpy     # run script.cpy through the cpy-in-cpy interpreter
+#   cpy selfhost/cpy.cpi script.cpi     # run script.cpi through the cpy-in-cpy interpreter
 #
-# This whole tree (lexer.cpy, parser.cpy, interp.cpy) is executed BY the real
+# This whole tree (lexer.cpi, parser.cpi, interp.cpi) is executed BY the real
 # C-based cpy binary, but it re-implements lexing/parsing/evaluation itself
 # in pure cpy source. See selfhost/README.md for scope and limitations.
 
@@ -15,7 +15,7 @@ from lexer import LexError
 
 def main():
     if len(sys.argv) < 2:
-        print("usage: cpy selfhost/cpy.cpy <script.cpy>")
+        print("usage: cpy selfhost/cpy.cpi <script.cpi>")
         sys.exit(2)
     path = sys.argv[1]
     with open(path) as f:

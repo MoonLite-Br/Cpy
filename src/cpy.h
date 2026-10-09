@@ -261,9 +261,9 @@ Value new_set(int kind);
 Value default_object_method(Value self, Str *name);
 Value binop(int op, Value a, Value b);
 
-/* ---- traceback support for AOT-compiled code (selfhost/codegen.cpy) ----
+/* ---- traceback support for AOT-compiled code (selfhost/codegen.cpi) ----
  * AOT-generated C functions push/pop a Frame around their own body (see
- * gen_function in codegen.cpy) so an uncaught exception gets a real
+ * gen_function in codegen.cpi) so an uncaught exception gets a real
  * "File X, line N, in func" traceback instead of just a bare class+message.
  * Popping on every `return` without rewriting codegen's control flow into a
  * single-exit form: declare the Frame with
@@ -276,12 +276,12 @@ Value binop(int op, Value a, Value b);
  * for the tree-walking interpreter's own main().) */
 void cpy_frame_pop(Frame *f);
 
-/* ---- unboxed numeric primitives for AOT codegen (selfhost/codegen.cpy) ----
+/* ---- unboxed numeric primitives for AOT codegen (selfhost/codegen.cpi) ----
  * Each mirrors the corresponding branch of binop() exactly (same overflow /
  * zero-division checks, same error messages), just operating on raw
  * int64_t/double instead of a boxed Value. Used by the AOT compiler's
  * "fast" (unboxed) function variants so generated C doesn't need to
- * reproduce this logic inline. See selfhost/codegen.cpy for the codegen
+ * reproduce this logic inline. See selfhost/codegen.cpi for the codegen
  * side; these are the only new runtime entry points it needs. */
 int64_t cpy_add_i(int64_t a, int64_t b);
 int64_t cpy_sub_i(int64_t a, int64_t b);

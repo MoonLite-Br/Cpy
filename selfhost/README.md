@@ -5,7 +5,7 @@ tree-walking evaluator — written **entirely in cpy** and executed by the real
 (C) `cpy` binary. It doesn't share a single line with `src/`.
 
 ```bash
-cpy selfhost/cpy.cpy yourscript.cpy
+cpy selfhost/cpy.cpi yourscript.cpi
 ```
 
 ## Why this exists, and why it is not the fast path
@@ -21,7 +21,7 @@ representative:
 |---|---|
 | native `bin/cpy` (C) | ~0.005 s |
 | CPython 3.12 | ~0.013 s |
-| `cpy selfhost/cpy.cpy` (cpy-in-cpy) | ~0.76 s |
+| `cpy selfhost/cpy.cpi` (cpy-in-cpy) | ~0.76 s |
 
 So: use `bin/cpy` directly for anything performance-sensitive — that's the
 whole point of the C interpreter in `src/`. Reach for this self-hosted one
@@ -44,7 +44,7 @@ Not implemented (raises a clear parse/runtime error rather than doing the
 wrong thing silently): `try/except`, `*args`/`**kwargs`, keyword arguments at
 call sites, f-strings, comprehensions, `with`, `import`, decorators,
 augmented slice/attribute targets, multiple inheritance. Adding any of these
-means touching `lexer.cpy`/`parser.cpy`/`interp.cpy` — each is a few hundred
+means touching `lexer.cpi`/`parser.cpi`/`interp.cpi` — each is a few hundred
 lines and follows the same structure as the C sources in `../src/` for the
 same feature, so `../src/parser.c` / `../src/interp.c` are the reference to
 copy the logic from.
@@ -52,29 +52,29 @@ copy the logic from.
 ## Layout
 
 ```
-lexer.cpy    text -> Token list (handles INDENT/DEDENT, strings, numbers)
-parser.cpy   Token list -> AST (plain dicts, key "kind")
-interp.cpy   AST -> result (Env is a dict + parent pointer; classes/instances
+lexer.cpi    text -> Token list (handles INDENT/DEDENT, strings, numbers)
+parser.cpi   Token list -> AST (plain dicts, key "kind")
+interp.cpi   AST -> result (Env is a dict + parent pointer; classes/instances
              are plain objects; break/continue/return are implemented by
              raising and catching cpy exceptions, same trick the C
              interpreter uses internally with setjmp/longjmp)
-cpy.cpy      entry point: reads argv[1], runs it
-tests/       t*.cpy scripts whose output is checked against the real
+cpy.cpi      entry point: reads argv[1], runs it
+tests/       t*.cpi scripts whose output is checked against the real
              interpreter by ../selfhost_test.sh
 ```
 
 ## AOT: compiling cpy to a real native binary
 
-Alongside the tree-walking `cpy.cpy` above, this directory also has a genuine
-**ahead-of-time compiler**: `codegen.cpy` walks the same AST and emits C
+Alongside the tree-walking `cpy.cpi` above, this directory also has a genuine
+**ahead-of-time compiler**: `codegen.cpi` walks the same AST and emits C
 source that calls straight into the runtime (`binop()`, `val_cmpop()`,
-`call_value()`, ...); `aotc.cpy` then shells out to `cc` to turn that C into
+`call_value()`, ...); `aotc.cpi` then shells out to `cc` to turn that C into
 a real machine-code executable, linked against `bin/libcpyrt.a` (built by
 `make aot`, and by `install.sh`).
 
 ```bash
 make aot                                            # build bin/libcpyrt.a once
-cpy selfhost/aotc.cpy fib.cpy -o fib                # compile
+cpy selfhost/aotc.cpi fib.cpi -o fib                # compile
 ./fib                                                # run — real machine code, no AST left
 ```
 
@@ -93,7 +93,7 @@ heap-allocated in the runtime, so the generated C never has to reproduce the
 interpreter's reference-counting discipline, which keeps this compiler both
 small and safe (checked under ASan). Anything outside the subset is
 rejected with a clear `CompileError` (source line included) at compile
-time rather than doing the wrong thing silently — e.g. `aotc fib.cpy`
+time rather than doing the wrong thing silently — e.g. `aotc fib.cpi`
 reports exactly which line and construct to fix, or that the script just
 needs the regular interpreter instead.
 
@@ -105,18 +105,18 @@ tree-walking interpreter itself would make — so a compiled loop around a
 dynamic-dispatch cost. `print`, `abs`, `round`, `min`, `max`, `pow`, and
 `divmod` also work directly, in expressions or as statements (resolved once
 at program start, not re-looked-up every call). `import` is AOT-only for
-now — the tree-walking `cpy.cpy` above doesn't support it yet (running an
-`import`-using script through `cpy selfhost/cpy.cpy` gives a clear `cannot
+now — the tree-walking `cpy.cpi` above doesn't support it yet (running an
+`import`-using script through `cpy selfhost/cpy.cpi` gives a clear `cannot
 execute node kind 'import'` error rather than silently skipping it).
 
 Growing the subset to strings/lists/dicts is the natural next step, and
-means teaching `codegen.cpy` the same incref/decref discipline `src/interp.c`
+means teaching `codegen.cpi` the same incref/decref discipline `src/interp.c`
 already follows (see the comment at the top of `src/value.c`) -- doable, just
 more bookkeeping per node.
 
 ## Ideas for next steps
 
-- A `try/except` in `interp.cpy` is the most valuable gap to close next since
+- A `try/except` in `interp.cpi` is the most valuable gap to close next since
   the C interpreter's own approach (catch a Python exception per AST
   try-block) translates directly.
 - Compiling the AST to a flat bytecode list (instead of walking dicts) before

@@ -525,7 +525,7 @@ void cpy_frame_pop(Frame *f) { g_frame = f->prev; }
  * Each of these is a direct transcription of the matching branch of
  * binop() above (same checks, same error messages/classes), just taking
  * and returning raw int64_t/double instead of a boxed Value. They exist
- * so selfhost/codegen.cpy's unboxed ("fast") AOT tier can call a single
+ * so selfhost/codegen.cpi's unboxed ("fast") AOT tier can call a single
  * small function instead of re-emitting binop's overflow/zero-division
  * logic inline at every call site -- keeping generated C short and this
  * logic defined in exactly one place. */
@@ -573,7 +573,7 @@ double cpy_mod_d(double x, double y) {
   return r;
 }
 /* Codegen only ever calls this when it has statically proven exp >= 0
- * (a non-negative integer constant exponent -- see codegen.cpy's binop
+ * (a non-negative integer constant exponent -- see codegen.cpi's binop
  * handling); for a general/runtime-sign exponent the result's own TYPE
  * depends on the sign (int**int is int when exp>=0, float when exp<0,
  * exactly like binop()'s OP_POW below), which the fast tier's fixed
@@ -1899,7 +1899,7 @@ static char *find_module_source(const char *dotted, char *path, size_t psz, int 
   for (const char *p = dotted; *p && k < sizeof rel - 1; p++) rel[k++] = *p == '.' ? '/' : *p;
   rel[k] = 0;
   List *sp = (List *)get_sys_path().o;
-  static const char *exts[] = {".cpy", ".py"};
+  static const char *exts[] = {".cpi", ".cpy", ".py"};
   for (int i = 0; i < sp->len; i++) {
     if (sp->items[i].t != T_STR) continue;
     const char *dir = ((Str *)sp->items[i].o)->s;
