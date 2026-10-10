@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="420" viewBox="0 0 1280 420" role="img" aria-label="cpy — Python syntax, C speed">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0A101C"/>
+      <stop offset="55%" stop-color="#101A2C"/>
+      <stop offset="100%" stop-color="#152238"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#5B9FD4"/>
+      <stop offset="100%" stop-color="#7BC4A0"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1E2A40" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1280" height="420" fill="url(#bg)"/>
+  <rect width="1280" height="420" fill="url(#grid)" opacity="0.55"/>
+  <!-- soft glow orb -->
+  <circle cx="1040" cy="210" r="180" fill="#3D7EBF" opacity="0.08"/>
+  <circle cx="1040" cy="210" r="110" fill="none" stroke="#5B9FD4" stroke-width="3" opacity="0.45"/>
+  <circle cx="1040" cy="210" r="70" fill="none" stroke="#7BC4A0" stroke-width="2" opacity="0.35"/>
+  <!-- wordmark -->
+  <text x="96" y="200" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+        font-size="120" font-weight="700" fill="#F2F6FC" letter-spacing="-3">cpy</text>
+  <rect x="100" y="228" width="220" height="6" rx="3" fill="url(#accent)"/>
+  <text x="100" y="290" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif"
+        font-size="32" font-weight="500" fill="#A8B8D0">Python syntax, C speed.</text>
+  <text x="100" y="340" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif"
+        font-size="20" fill="#6B7C96">From-scratch interpreter · one binary · Termux-ready</text>
+</svg>

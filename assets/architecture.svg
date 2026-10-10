@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="280" viewBox="0 0 960 280" role="img" aria-label="cpy architecture">
+  <defs>
+    <linearGradient id="box" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1A2740"/>
+      <stop offset="100%" stop-color="#132033"/>
+    </linearGradient>
+  </defs>
+  <rect width="960" height="280" fill="#0B1220" rx="12"/>
+  <!-- boxes -->
+  <g font-family="ui-sans-serif, system-ui, sans-serif" text-anchor="middle">
+    <rect x="40" y="90" width="140" height="70" rx="12" fill="url(#box)" stroke="#3D7EBF" stroke-width="2"/>
+    <text x="110" y="122" font-size="15" fill="#E8EEF7" font-weight="600">Source</text>
+    <text x="110" y="144" font-size="12" fill="#8AA0BC">.cpi / .py</text>
+
+    <rect x="230" y="90" width="140" height="70" rx="12" fill="url(#box)" stroke="#5B9FD4" stroke-width="2"/>
+    <text x="300" y="122" font-size="15" fill="#E8EEF7" font-weight="600">Parse</text>
+    <text x="300" y="144" font-size="12" fill="#8AA0BC">lexer → AST</text>
+
+    <rect x="420" y="90" width="140" height="70" rx="12" fill="url(#box)" stroke="#6BA8D8" stroke-width="2"/>
+    <text x="490" y="122" font-size="15" fill="#E8EEF7" font-weight="600">Resolve</text>
+    <text x="490" y="144" font-size="12" fill="#8AA0BC">slots / scopes</text>
+
+    <rect x="610" y="40" width="140" height="70" rx="12" fill="url(#box)" stroke="#7BC4A0" stroke-width="2"/>
+    <text x="680" y="72" font-size="15" fill="#E8EEF7" font-weight="600">Tree-walk</text>
+    <text x="680" y="94" font-size="12" fill="#8AA0BC">eval / exec</text>
+
+    <rect x="610" y="140" width="140" height="70" rx="12" fill="url(#box)" stroke="#7BC4A0" stroke-width="2"/>
+    <text x="680" y="172" font-size="15" fill="#E8EEF7" font-weight="600">Bytecode VM</text>
+    <text x="680" y="194" font-size="12" fill="#8AA0BC">optional tier</text>
+
+    <rect x="800" y="90" width="120" height="70" rx="12" fill="url(#box)" stroke="#C4A06B" stroke-width="2"/>
+    <text x="860" y="122" font-size="15" fill="#E8EEF7" font-weight="600">Runtime</text>
+    <text x="860" y="144" font-size="12" fill="#8AA0BC">values / GC</text>
+  </g>
+  <!-- arrows -->
+  <g stroke="#3D5570" stroke-width="2" fill="none" marker-end="url(#arrow)">
+    <defs>
+      <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L6,3 L0,6 Z" fill="#3D5570"/>
+      </marker>
+    </defs>
+    <line x1="180" y1="125" x2="228" y2="125"/>
+    <line x1="370" y1="125" x2="418" y2="125"/>
+    <line x1="560" y1="125" x2="608" y2="75"/>
+    <line x1="560" y1="125" x2="608" y2="175"/>
+    <line x1="750" y1="75" x2="798" y2="115"/>
+    <line x1="750" y1="175" x2="798" y2="135"/>
+  </g>
+  <text x="480" y="250" text-anchor="middle" font-family="ui-sans-serif, system-ui, sans-serif"
+        font-size="13" fill="#6B7C96">Portable C · no external runtime · optional OpenSSL for HTTPS</text>
+</svg>
