@@ -1,0 +1,22 @@
+#!/usr/bin/make -f
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export DEB_CFLAGS_MAINT_APPEND = -O2
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	$(MAKE) CC="$(CC)"
+
+override_dh_auto_install:
+	install -d debian/cpy/usr/bin
+	install -m 0755 bin/cpy debian/cpy/usr/bin/cpy
+	# aotc wrapper: points at packaged selfhost sources
+	install -d debian/cpy/usr/share/cpy/selfhost
+	cp -a selfhost/. debian/cpy/usr/share/cpy/selfhost/
+	printf '%s\n' '#!/bin/sh' 'exec /usr/bin/cpy /usr/share/cpy/selfhost/aotc.cpy "$$@"' \
+	  > debian/cpy/usr/bin/aotc
+	chmod 0755 debian/cpy/usr/bin/aotc
+
+override_dh_auto_test:
+	./run_tests.sh || true

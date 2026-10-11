@@ -1,0 +1,5 @@
+cpy (1.11.0-1) unstable; urgency=medium
+
+  * Upstream 1.11.0: method-dispatch cache, docs, bench suite.
+
+ -- moonlite-admin <moonlite-admin@users.noreply.github.com>  Sun, 11 Oct 2026 08:00:00 +0700

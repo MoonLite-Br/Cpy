@@ -134,6 +134,20 @@ make debug              # AddressSanitizer + UBSan binary → bin/cpy-asan
 make test               # full test suite
 ```
 
+### Debian / Ubuntu / Termux package (`.deb`)
+
+```bash
+# build package
+./scripts/build-deb.sh 1.11.0
+
+# install
+sudo dpkg -i build/cpy_1.11.0-1_*.deb    # Debian/Ubuntu
+# Termux:
+dpkg -i build/cpy_1.11.0-1_*.deb
+```
+
+Tagged releases (`git tag v1.11.0 && git push --tags`) publish `.deb` and binaries via GitHub Actions. See [`packaging/README.md`](packaging/README.md) for APT repo / official `pkg install` paths.
+
 HTTPS: if OpenSSL headers/libs are installed, `make` enables them automatically. Without them, cpy still builds; `http://` works, `https://` reports a clear error.
 
 ## CLI

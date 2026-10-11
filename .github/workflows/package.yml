@@ -1,0 +1,52 @@
+name: package
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  deb-amd64:
+    name: .deb amd64 (Ubuntu)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install packaging tools
+        run: sudo apt-get update && sudo apt-get install -y build-essential libssl-dev dpkg-dev
+      - name: Build .deb
+        run: ./scripts/build-deb.sh "${GITHUB_REF_NAME#v}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cpy-deb-amd64
+          path: build/*.deb
+
+  deb-arm64:
+    name: .deb arm64 (Ubuntu)
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install packaging tools
+        run: sudo apt-get update && sudo apt-get install -y build-essential libssl-dev dpkg-dev
+      - name: Build .deb
+        run: ./scripts/build-deb.sh "${GITHUB_REF_NAME#v}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cpy-deb-arm64
+          path: build/*.deb
+
+  release-debs:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [deb-amd64, deb-arm64]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+      - name: Collect
+        run: |
+          mkdir -p dist
+          find . -name 'cpy_*.deb' -exec cp {} dist/ \;
+          ls -la dist/
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.deb

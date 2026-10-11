@@ -1,0 +1,17 @@
+Source: cpy
+Section: interpreters
+Priority: optional
+Maintainer: moonlite-admin <moonlite-admin@users.noreply.github.com>
+Build-Depends: debhelper-compat (= 13), gcc | clang, make, libssl-dev
+Standards-Version: 4.6.2
+Homepage: https://github.com/MoonLite-Br/Cpy
+Rules-Requires-Root: no
+
+Package: cpy
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Python-syntax interpreter written in portable C
+ cpy runs Python-like programs through a from-scratch interpreter in C:
+ classes, generators, async, networking, and common stdlib modules in one
+ binary. Optional OpenSSL enables HTTPS. Suitable for scripts, Termux, and
+ small tools where a full CPython install is heavy.

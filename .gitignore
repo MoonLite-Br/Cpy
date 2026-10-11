@@ -8,3 +8,4 @@ demo_out.txt
 tests/tmp_*
 examples/demo_out.txt
 *.out.bak
+bin/
