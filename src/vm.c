@@ -598,7 +598,7 @@ int vm_run(VMCode *vc, Env *env) {
       Node *cn = I->n->a; Value *argv = &S[I->c]; int na = I->sub;
       Value obj = argv[0]; Value f, r;
       g_line = cn->line;
-      Value m = vm_method_fn(obj, cn->s);
+      Value m = vm_method_fn_cached(obj, cn);
       if (m.t != T_UNDEF) {
         incref(m); g_line = I->line;
         r = m.t == T_FUNC ? vm_call_func((Func *)m.o, argv, na + 1) : call_value(m, argv, na + 1, NULL);

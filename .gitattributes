@@ -1,5 +1,5 @@
-# Map to Python until github-linguist accepts the Cpy language.
-*.cpi linguist-language=Python
+# .cpy is COBOL in upstream Linguist; map to Python until a Cpy language is accepted.
 *.cpy linguist-language=Python
+*.cpi linguist-language=Python
 *.sh  linguist-language=Shell
 src/stdlib_data.c linguist-generated=true

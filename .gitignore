@@ -5,4 +5,6 @@ build/
 *.so
 demo_out.txt
 .cpy_test_*
+tests/tmp_*
+examples/demo_out.txt
 *.out.bak

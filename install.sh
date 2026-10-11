@@ -3,6 +3,7 @@
 #   Termux:  installs to $PREFIX/bin      Linux/macOS: /usr/local/bin (if writable) or ~/bin
 set -e
 cd "$(dirname "$0")"
+ROOT="$(pwd)"
 
 CC=${CC:-cc}
 if ! command -v "$CC" >/dev/null 2>&1; then
@@ -15,20 +16,33 @@ fi
 make CC="$CC"
 chmod +x bin/cpy
 
+# Build the runtime library too, so the AOT compiler (`aotc`, installed
+# below) can compile cpy scripts to native binaries right away.
+make CC="$CC" aot || echo "note: 'make aot' failed; the interpreter above still works fine, only 'aotc' needs bin/libcpyrt.a"
+
 if [ -n "$PREFIX" ] && [ -d "$PREFIX/bin" ]; then
-  cp bin/cpy "$PREFIX/bin/cpy"
-  echo "Installed: $PREFIX/bin/cpy"
+  BINDIR="$PREFIX/bin"
 elif [ -w /usr/local/bin ] 2>/dev/null; then
-  cp bin/cpy /usr/local/bin/cpy
-  echo "Installed: /usr/local/bin/cpy"
+  BINDIR="/usr/local/bin"
 else
-  mkdir -p "$HOME/bin"
-  cp bin/cpy "$HOME/bin/cpy"
-  echo "Installed: $HOME/bin/cpy"
+  BINDIR="$HOME/bin"
+  mkdir -p "$BINDIR"
   case ":$PATH:" in
-    *":$HOME/bin:"*) ;;
-    *) echo 'export PATH="$HOME/bin:$PATH"' >> "$HOME/.bashrc"
-       echo "Run: source ~/.bashrc" ;;
+    *":$BINDIR:"*) ;;
+    *) echo "export PATH=\"$BINDIR:\$PATH\"" >> "$HOME/.bashrc"
+       echo "Added $BINDIR to PATH in ~/.bashrc -- run: source ~/.bashrc" ;;
   esac
 fi
-echo "Use: cpy   or   cpy file.cpi"
+
+cp bin/cpy "$BINDIR/cpy"
+cat > "$BINDIR/aotc" <<WRAPPER
+#!/bin/sh
+# Compiles numeric cpy scripts to native machine code. See: aotc --help
+exec "$BINDIR/cpy" "$ROOT/selfhost/aotc.cpy" "\$@"
+WRAPPER
+chmod +x "$BINDIR/aotc"
+
+echo "Installed: $BINDIR/cpy, $BINDIR/aotc"
+echo "Use: cpy                 -- REPL"
+echo "     cpy file.cpy         -- run a script"
+echo "     aotc in.cpy -o out   -- compile a numeric script to a native binary, then run ./out"

@@ -19,7 +19,9 @@ static void sv_push(StrVec *sv, Str *s) {
 }
 
 static Node *new_node(int k, int line) {
-  Node *n = xcalloc(1, sizeof(Node)); n->k = k; n->line = line; n->val = V_none(); return n;
+  Node *n = xcalloc(1, sizeof(Node)); n->k = k; n->line = line; n->val = V_none();
+  n->mc_type = -1;  /* no real type tag is negative -- see cpy.h's mc_type comment */
+  return n;
 }
 static Node *mk_name(Str *s, int line) { Node *n = new_node(N_NAME, line); n->s = s; return n; }
 

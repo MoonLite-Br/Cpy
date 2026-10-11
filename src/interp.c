@@ -525,7 +525,7 @@ void cpy_frame_pop(Frame *f) { g_frame = f->prev; }
  * Each of these is a direct transcription of the matching branch of
  * binop() above (same checks, same error messages/classes), just taking
  * and returning raw int64_t/double instead of a boxed Value. They exist
- * so selfhost/codegen.cpi's unboxed ("fast") AOT tier can call a single
+ * so selfhost/codegen.cpy's unboxed ("fast") AOT tier can call a single
  * small function instead of re-emitting binop's overflow/zero-division
  * logic inline at every call site -- keeping generated C short and this
  * logic defined in exactly one place. */
@@ -573,7 +573,7 @@ double cpy_mod_d(double x, double y) {
   return r;
 }
 /* Codegen only ever calls this when it has statically proven exp >= 0
- * (a non-negative integer constant exponent -- see codegen.cpi's binop
+ * (a non-negative integer constant exponent -- see codegen.cpy's binop
  * handling); for a general/runtime-sign exponent the result's own TYPE
  * depends on the sign (int**int is int when exp>=0, float when exp<0,
  * exactly like binop()'s OP_POW below), which the fast tier's fixed
@@ -1247,6 +1247,30 @@ static Value method_fn(Value obj, Str *name) {
   return b ? *b : V_undef();
 }
 
+/* method_fn, but with an inline cache keyed on the ATTR node `cn` (the
+ * `.method` part of an `obj.method(...)` call site) for builtin types
+ * only (T_STR/T_LIST/T_TUPLE/T_DICT/T_SET/T_FILE/...). Deliberately
+ * EXCLUDES T_INST: method_fn's result for a class instance depends not
+ * just on its type tag but on its *specific class* (different classes
+ * share the T_INST tag) AND on that *individual instance's* own
+ * attrs dict (an instance can shadow a method with its own same-named
+ * attribute, and two instances of the same class can differ in whether
+ * they do) -- caching by type tag alone would be wrong there. Builtin
+ * types have no such per-instance variation (list_methods etc. are fixed
+ * for the process's life, purely a function of the type tag), so this
+ * covers the common, high-value case (.append/.join/.get/... in a loop)
+ * soundly without needing to reason through that per-instance case at
+ * all. One shared implementation for both the tree-walker (eval_call)
+ * and the VM (VM_CALLM in vm.c) -- deliberately, rather than keeping the
+ * cache logic in two places that could silently drift apart. */
+static Value method_fn_cached(Value obj, Node *cn) {
+  if (obj.t == T_INST) return method_fn(obj, cn->s);
+  if (cn->mc_type == obj.t) return cn->mc_val;
+  Value m = method_fn(obj, cn->s);
+  if (m.t != T_UNDEF) { cn->mc_type = obj.t; cn->mc_val = m; }
+  return m;
+}
+
 static Value eval_call(Node *n, Env *env) {
   if (n->op == 0 && n->nv2 == 0 && n->nv <= 6) {
     Node *cn = n->a;
@@ -1254,7 +1278,7 @@ static Value eval_call(Node *n, Env *env) {
     if (cn->k == N_ATTR) {
       obj = eval(cn->a, env);
       g_line = cn->line;
-      Value m = method_fn(obj, cn->s);
+      Value m = method_fn_cached(obj, cn);
       if (m.t != T_UNDEF) { f = m; incref(f); argv[0] = obj; self_off = 1; obj = V_undef(); }
       else { f = get_attr(obj, cn->s); decref(obj); obj = V_undef(); }
     } else f = EV(cn, env);
@@ -1899,7 +1923,7 @@ static char *find_module_source(const char *dotted, char *path, size_t psz, int 
   for (const char *p = dotted; *p && k < sizeof rel - 1; p++) rel[k++] = *p == '.' ? '/' : *p;
   rel[k] = 0;
   List *sp = (List *)get_sys_path().o;
-  static const char *exts[] = {".cpi", ".cpy", ".py"};
+  static const char *exts[] = {".cpy", ".py"};
   for (int i = 0; i < sp->len; i++) {
     if (sp->items[i].t != T_STR) continue;
     const char *dir = ((Str *)sp->items[i].o)->s;
@@ -2065,4 +2089,4 @@ void vm_assign(Node *t, Value v, Env *e) { assign_target(t, v, e); }
 int vm_exec(Node *n, Env *e) { return exec_stmt(n, e); }
 void vm_index_set(Value o, Value i, Value v) { index_set(o, i, v); }
 Value vm_call_func(Func *f, Value *args, int n) { return call_func(f, args, n, NULL); }
-Value vm_method_fn(Value obj, Str *name) { return method_fn(obj, name); }
+Value vm_method_fn_cached(Value obj, Node *cn) { return method_fn_cached(obj, cn); }

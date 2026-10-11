@@ -2,8 +2,8 @@ CC      ?= cc
 CFLAGS  ?= -O2
 CFLAGS  += -Wall -Wextra -Wno-unused-parameter -Wno-misleading-indentation -std=gnu11
 LDLIBS  += -lm -pthread
-LIBS    := $(wildcard lib/*.cpi)
-SRC     := $(sort $(wildcard src/*.c))
+LIBS    := $(wildcard lib/*.cpy)
+SRC     := $(sort $(wildcard src/*.c) src/stdlib_data.c)
 BIN     := bin/cpy
 
 # https:// support (src/ssl_mod.c) needs OpenSSL's dev headers + libs.
@@ -44,11 +44,8 @@ all: $(BIN)
 	elif [ "$(HAVE_SIGALT)" = "1" ]; then echo "generators: fast sigaltstack engine (no ucontext on this platform)"; \
 	else echo "generators: slow thread-based fallback (neither ucontext nor sigaltstack usable)"; fi
 
-# stdlib_data.c is pre-generated and shipped; only regenerate when tools/ are present.
-ifneq ($(wildcard tools/gen_stdlib.sh),)
 src/stdlib_data.c: $(LIBS) tools/gen_stdlib.sh
 	sh tools/gen_stdlib.sh $(LIBS) > $@
-endif
 
 $(BIN): $(SRC) src/cpy.h
 	@mkdir -p bin
@@ -70,7 +67,7 @@ bin/libcpyrt.a: $(RTOBJ)
 	ar rcs $@ $(RTOBJ)
 
 aot: bin/libcpyrt.a
-	@echo "runtime library ready: bin/libcpyrt.a  (use: cpy selfhost/aotc.cpi in.cpi -o out)"
+	@echo "runtime library ready: bin/libcpyrt.a  (use: cpy selfhost/aotc.cpy in.cpy -o out)"
 
 test: $(BIN)
 	./run_tests.sh

@@ -21,7 +21,7 @@
 #include <setjmp.h>
 #include <ctype.h>
 
-#define CPY_VERSION "1.10.0"
+#define CPY_VERSION "1.11.0"
 #define MAX_PARAMS 32
 #define MAX_DEPTH 1000
 #define MAX_KW 16
@@ -114,6 +114,13 @@ struct Node {
   int rk, ri, rh;     /* name resolution (see resolve.c) */
   int rk2, ri2, rh2;  /* fallback resolution for names in class bodies */
   int gidx;           /* cached dict entry index for global/module lookups */
+  int mc_type;        /* inline method-dispatch cache: obj.t this ATTR node last
+                        * resolved a BUILTIN-type method for (T_STR/T_LIST/...;
+                        * never T_INST -- see eval_call's N_ATTR case for why),
+                        * or -1 if unset. Builtin method tables (list_methods
+                        * etc.) are fixed for the process's life, so a hit needs
+                        * no further validation beyond the type tag matching. */
+  Value mc_val;        /* the resolved method Value, valid iff mc_type matches */
 };
 enum { RK_DYN = 0, RK_LOCAL, RK_FREE, RK_GLOBAL, RK_CLASS };
 
@@ -261,9 +268,9 @@ Value new_set(int kind);
 Value default_object_method(Value self, Str *name);
 Value binop(int op, Value a, Value b);
 
-/* ---- traceback support for AOT-compiled code (selfhost/codegen.cpi) ----
+/* ---- traceback support for AOT-compiled code (selfhost/codegen.cpy) ----
  * AOT-generated C functions push/pop a Frame around their own body (see
- * gen_function in codegen.cpi) so an uncaught exception gets a real
+ * gen_function in codegen.cpy) so an uncaught exception gets a real
  * "File X, line N, in func" traceback instead of just a bare class+message.
  * Popping on every `return` without rewriting codegen's control flow into a
  * single-exit form: declare the Frame with
@@ -276,12 +283,12 @@ Value binop(int op, Value a, Value b);
  * for the tree-walking interpreter's own main().) */
 void cpy_frame_pop(Frame *f);
 
-/* ---- unboxed numeric primitives for AOT codegen (selfhost/codegen.cpi) ----
+/* ---- unboxed numeric primitives for AOT codegen (selfhost/codegen.cpy) ----
  * Each mirrors the corresponding branch of binop() exactly (same overflow /
  * zero-division checks, same error messages), just operating on raw
  * int64_t/double instead of a boxed Value. Used by the AOT compiler's
  * "fast" (unboxed) function variants so generated C doesn't need to
- * reproduce this logic inline. See selfhost/codegen.cpi for the codegen
+ * reproduce this logic inline. See selfhost/codegen.cpy for the codegen
  * side; these are the only new runtime entry points it needs. */
 int64_t cpy_add_i(int64_t a, int64_t b);
 int64_t cpy_sub_i(int64_t a, int64_t b);
@@ -314,7 +321,7 @@ void vm_assign(Node *t, Value v, Env *e);
 int vm_exec(Node *n, Env *e);
 void vm_index_set(Value o, Value i, Value v);
 Value vm_call_func(Func *f, Value *args, int n);
-Value vm_method_fn(Value obj, Str *name);
+Value vm_method_fn_cached(Value obj, Node *cn);
 int contains(Value container, Value item);
 Value import_module(Str *name);
 void interp_setup_path(const char *dir);
