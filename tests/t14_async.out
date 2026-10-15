@@ -1,0 +1,9 @@
+30
+4
+['a', 'b', 'c']
+caught: kaboom
+('fg', 'bg')
+(True, True, True)
+TypeError
+coroutine
+done
